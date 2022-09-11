@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+</head>
+<body class="container bg-info mx-3 mt-3">
+    <h3>{{ques}}</h3>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <select class="form-select form-select-lg" name="choice">
+            <option value="easy">easy</option>
+            <option value="tough">tough</option>
+        </select><br /><br />
+        <button class="btn btn-secondary" type="submit">Vote</button>
+    </form>
+</body>
+</html>
