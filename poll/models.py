@@ -10,10 +10,10 @@ class apollModel(models.Model):
 
 class upollModel(models.Model):
     question = models.ForeignKey(apollModel,on_delete=models.CASCADE)
-    choice = models.CharField(max_length=5,choices=(('easy','easy'),('tough','tough')),default='easy')
+    choice = models.CharField(max_length=5,choices=(('good','good'),('bad','bad')),default='')
     vote = models.IntegerField(default=0)
 
 class tpollModel(models.Model):
     question = models.ForeignKey(apollModel,on_delete=models.CASCADE)
-    choice = models.CharField(max_length=5,choices=(('easy','easy'),('tough','tough')),default='easy')
+    choice = models.CharField(max_length=5,choices=(('good','good'),('bad','bad')),default='')
     vote = models.IntegerField(default=0)

@@ -10,13 +10,20 @@
 </head>
 <body class="container bg-info mx-3 mt-3">
     <h3>{{ques}}</h3>
-    <form action="" method="POST">
+    <form action="" method="post">
         {% csrf_token %}
-        <select class="form-select form-select-lg" name="choice">
-            <option value="easy">easy</option>
-            <option value="tough">tough</option>
-        </select><br /><br />
-        <button class="btn btn-secondary" type="submit">Vote</button>
+        {% for question in questions %}
+            <div>
+                <h2>{{ question.question }}</h2>
+                <label>
+                    <input type="radio" name="choice_{{ question.question }}" value="good"> Good
+                </label>
+                <label>
+                    <input type="radio" name="choice_{{ question.question }}" value="bad"> Bad
+                </label>
+            </div>
+        {% endfor %}
+        <button type="submit">Submit Votes</button>
     </form>
 </body>
 </html>

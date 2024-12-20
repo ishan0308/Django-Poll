@@ -18,13 +18,18 @@
             </tr>
         </thead>
         <tbody>
-                {% for poll in polls %}
-                <tr class="">
-                    <td>{{poll.question.question}}</td>
-                    <td>{{poll.choice}}</td>
-                    <td>{{poll.vote}}</td>
-                </tr>
-                {% endfor %}
+            {% for result in results %}
+                <tr>
+                    <td rowspan="{{ result.choices|length }}">{{ result.question }}</td>
+                    {% for choice in result.choices %}
+                        {% if forloop.first == False %}
+                        <tr>
+                        {% endif %}
+                        <td>{{ choice.choice }}</td>
+                        <td>{{ choice.total_votes }}</td>
+                    </tr>
+                    {% endfor %}
+            {% endfor %}
         </tbody>
     </table>
 </body>

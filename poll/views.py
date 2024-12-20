@@ -2,52 +2,72 @@ from django.shortcuts import render
 from poll.models import apollModel, upollModel, tpollModel
 from poll.forms import upollForm,tpollForm
 from django.http.response import HttpResponse, HttpResponseRedirect
+from django.db.models import Sum
+from django.utils.timezone import now
 # Create your views here.
 
 def index(request):
-    form = upollForm(request.POST)
-    if form.is_valid():
-        #ques = request.session['ques']
-        ques = apollModel.objects.all()[0]
-        p = form.save(commit=False)
-        mod = upollModel.objects.all().filter(question=ques,choice=form.cleaned_data['choice'])
-        if(len(mod)==0):
-            p.question = ques
-            p.choice = form.cleaned_data['choice']
-            p.vote = 1
-            p.save()
-        else:
-            mod[0].vote +=1
-            mod[0].save()
+    if request.method == "POST":
+        # Fetch all questions from `apollModel`
+        questions = apollModel.objects.all()
+
+        for ques in questions:
+            # Get the user's choice for each question
+            choice = request.POST.get(f"choice_{ques.question}")
+            if choice:
+                # Increment vote count in `upollModel`
+                vote_entry = upollModel.objects.filter(question=ques, choice=choice).first()
+                if vote_entry:
+                    vote_entry.vote += 1
+                    vote_entry.save()
+                else:
+                    # Handle cases where `choice` does not exist in `upollModel`
+                    upollModel.objects.create(question=ques, choice=choice, vote=1)
+
+        # Redirect to results page
         return HttpResponseRedirect('/poll/addpoll')
     else:
-        ques1 = apollModel.objects.all()
-        ques = ques1[0].question
-        #upollModel.objects.create(question=ques)
-        request.session['ques'] = ques
-        return render(request,'index.html',{'ques':ques})
+        # Fetch all questions for display
+        questions = apollModel.objects.all()
+        return render(request, 'index.html', {'questions': questions})
+
 
 def addpoll(request):
-    polls = upollModel.objects.all().order_by('question').values()
-    return render(request,'index2.html',{'polls':polls})
+
+    # Fetch all questions and aggregate votes for each choice under each question
+    results = []
+    questions = apollModel.objects.all()
+
+    for question in questions:
+        # Get votes for each choice
+        choices = upollModel.objects.filter(question=question).values('choice').annotate(total_votes=Sum('vote'))
+
+        # Convert choices to a dictionary for easy lookup
+        choice_dict = {choice['choice']: choice['total_votes'] for choice in choices}
+
+        # Ensure both "good" and "bad" are present with default 0 votes
+        results.append({
+            'question': question.question,
+            'choices': [
+                {'choice': 'good', 'total_votes': choice_dict.get('good', 0)},
+                {'choice': 'bad', 'total_votes': choice_dict.get('bad', 0)},
+            ]
+        })
+
+    return render(request, 'index2.html', {'results': results})
+
 
 def tpoll(request):
     form = tpollForm(request.POST or None)
     if form.is_valid():
         ques = form.cleaned_data['question']
-        ques1 = ques.question
-        p = form.save(commit=False)
-        mod = upollModel.objects.all().filter(question=ques,choice=form.cleaned_data['choice'])
-        if(len(mod)==0):
-            t = upollForm(None)
-            q = t.save(commit=False)
-            q.question = ques
-            q.choice = form.cleaned_data['choice']
-            q.vote = 1
-            q.save()
-        else:
-            mod[0].vote += 1
-            mod[0].save()
-        return HttpResponseRedirect('/poll/addpoll')
+        # Create a new question in `apollModel`
+        question = apollModel.objects.create(question=ques, timestamp=now())
+
+        # Add default choices in `tpollModel` with vote count as 0
+        tpollModel.objects.create(question=question, choice="good", vote=0)
+        tpollModel.objects.create(question=question, choice="bad", vote=0)
+
+        return HttpResponseRedirect('/poll/addpoll')  # Redirect to results page
     else:
-        return render(request,'index3.html',{'form':form})
+        return render(request, 'index3.html', {'form': form})

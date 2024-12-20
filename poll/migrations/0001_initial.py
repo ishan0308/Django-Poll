@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
             name='upollModel',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('choice', models.CharField(choices=[('easy', 'easy'), ('tough', 'tough')], default='easy', max_length=5)),
+                ('choice', models.CharField(choices=[('good', 'good'), ('bad', 'bad')], default='', max_length=5)),
                 ('vote', models.IntegerField(default=0)),
                 ('question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='poll.apollModel')),
             ],
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
             name='tpollModel',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('choice', models.CharField(choices=[('easy', 'easy'), ('tough', 'tough')], default='easy', max_length=5)),
+                ('choice', models.CharField(choices=[('good', 'good'), ('bad', 'bad')], default='', max_length=5)),
                 ('vote', models.IntegerField(default=0)),
                 ('question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='poll.apollModel')),
             ],
